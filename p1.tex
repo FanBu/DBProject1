@@ -1,0 +1,87 @@
+\documentclass[letter, 12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\title{
+	{Project Report}\\
+	{\large CS6083 Project \#1}}
+\author{Fan Bu\and Bohan Zhang}
+\date{\today}
+
+
+\usepackage[left=1in, right=1in, top=1in, bottom=0.5in, includefoot, headheight=13.6pt]{geometry}
+\usepackage{natbib}
+\usepackage{enumerate}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead{}
+\fancyhead[RO,LE]{Project Report - CS6083 Project \#1}
+\fancyfoot{}
+\fancyfoot[LE,RO]{\thepage}
+\fancyfoot[LO,CE]{Chapter \thechapter}
+
+\usepackage{tikz}
+\usetikzlibrary{er}
+
+
+% database
+\def\ojoin{\setbox0=\hbox{$\bowtie$}%
+	\rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie}}
+\def\rightouterjoin{\mathbin{\bowtie\mkern-5.8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie\mkern-5.8mu\ojoin}} 
+
+
+
+
+
+\begin{document}
+	\maketitle
+	
+	\tableofcontents
+	
+	\chapter{Introduction}
+	In the first part this project, we have designed a relational database that can serve as a relational
+	backend for the service of a music streaming service similar to, e.g., Spotify. And this report will show the whole process of design and testing, as well as some interesting details when building the database.
+	
+	\chapter{Design}
+	\section{ER Diagram}
+	Our ER Diagram is as follows.
+	\begin{center}
+	\includegraphics[width=1\textwidth]{ER1}
+	\end{center}
+	As we designed this ER diagram, we made the following assumptions.
+	\begin{enumerate}
+		\item 
+		Album and playlist are modeled together to better represent the relation between user, playlist, album, and track. Since when a user plays a song, we want to store where the user finds the song, which could be from an album or a playlist, or the user found this song from search. If we seperate album and playlist, we still can trace the relation when building the website, but it will not be elegant to model it in ER diagram.
+		\item 
+		A playlist is created by a user, and a user can create many playlists.
+		\item 
+		A track, which is a piece of music, is performed by a single artist. And a single artist, which in fact can be a single person or a music band, can play many tracks.
+		\item 
+		A user can only play one track at a moment.
+		\item 
+		PlayHistory is a weak entity, and it has a partial key, time.
+		\item 
+		Every entity in the PlayHistory entity set participates in at least one relationship in the plays relationship set. And every entity in the PlayHistory entity set participates in at least one relationship in the with relationship set. But entities in PlayHistory is allowed not to participate in the any relationship in from relashiship set, which allows a user play a song directly rather than from any album or playlist.
+		\item 
+		A user can only follow another user once, which means the status between a user and another is either followed or not followed. After a user unfollowing another user, he can follow the specific user again.
+	\end{enumerate}
+	\section{Relational Schema}
+	And the Relational Schema is as follows.\\
+	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
+	Artist(\underline{\smash{aid}}, aname, description)\\
+	Track(\underline{\smash{tid}}, title, duration, genre)\\
+	AlbumPlaylist(\underline{\smash{alid}}, title, create\_time, count, type)\\
+	PlayHistory(\underline{\smash{uid}}, \underline{\smash{time}}, tid, alid)\\
+	Follow(\underline{\smash{uid}}, \underline{\smash{f\_uid}}, time)\\
+	
+\end{document}
