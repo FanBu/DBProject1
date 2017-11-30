@@ -75,7 +75,7 @@
 		A user can only follow another user once, which means the status between a user and another is either followed or not followed. After a user unfollowing another user, he can follow the specific user again.
 	\end{enumerate}
 	\section{Relational Schema}
-	And the Relational Schema is as follows.\\
+	And the Relational Schemas are as follows.\\
 	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
 	Artist(\underline{\smash{aid}}, aname, description)\\
 	Track(\underline{\smash{tid}}, title, duration, genre, by\_aid)\\
@@ -98,8 +98,30 @@
 		Facilatate the checking of updates for violation of database integrity constraints.
 	\end{enumerate}
 	\subsection{First Normal Form Validation}
+	In our current situation, every domain in our relational schemas is considered to be indivisible unit, hence every domain is atomic. So the requirements of first normal form is met.
 	\subsection{Boyce-Codd Normal Form Validation}
-	\subsection{Third Normal Form Validation}
-	\subsection{Fourth Normal Form Validation}
+	To check whether the schemas are in BCNF we have to figure out every functional dependency first.
+	\subsubsection{Functional Dependencies}
+	Following are the all non-trivial functional dependencies.\\
+	$(uid\to uname, nickname, email, city, password)$\\
+	$(uname\to uid, nickname, email, city, password)$\\
+	$(email\to uid, uname ,nickname, city, password)$\\
+	$(aid\to aname, description)$\\
+	$(tid\to title, duration, genre, by\_aid)$\\
+	$(alid\to title, time, count, type, by\_uid)$\\
+	$(uid, time\to tid, alid)$\\
+	$(uid, f\_uid\to time)$\\
+	$(uid, time\to f\_uid)$\\
+	$(uid, time\to tid, rate)$\\
+	$(uid, tid\to time, rate)$\\
+	$(uid, time\to aid)$\\
+	$(uid, aid\to time)$\\
+	$(tid, alid\to order)$\\
+	$(alid, order\to tid)$\\
+	As we can see, every functional dependency above, with the form of $\alpha \to \beta$, has the property of that $\alpha$ is a superkey for the corresponding relation schema $R$. So we can say that our relational schemas are in Boyce-Codd Normal Form.
 	
+	\subsection{Third Normal Form Validation}
+	Since every relation schema is in BCNF, it's in Third Normal Form, too.
+	\subsection{Fourth Normal Form Validation}
+	Since there is not multivalued dependency in any relational schema, so every relational schema is in Fourth Normal Form.
 \end{document}
