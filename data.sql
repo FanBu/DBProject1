@@ -32,7 +32,7 @@ INSERT INTO `Track` VALUES (3, 201000, 'Stolen Moments', 'Classical', 2);
 INSERT INTO `Track` VALUES (4, 190000, 'Virgo', 'Blues', 3);
 INSERT INTO `Track` VALUES (5, 170000, 'If You Could See Me Now', 'Jazz', 4);
 
-INSERT INTO `AlbumPlaylist` VALUES (1, 'Songs of Rod', '2015-11-05 12:20:00','playlist',2,1);
+INSERT INTO `AlbumPlaylist` VALUES (1, 'Songs of Rod', '2015-11-05 12:20:00','playlist',2,2);
 INSERT INTO `AlbumPlaylist` VALUES (2, 'Punk Band', '2016-01-01 12:00:00','album',2000,null);
 INSERT INTO `AlbumPlaylist` VALUES (3, 'Love Early', '2011-11-11 11:11:00','album',10000,null);
 
