@@ -1,11 +1,12 @@
-INSERT INTO `User` VALUES (1, 'Antonio Rod', 'ardd', 'rod@gmail.com','pass','New York City');
-INSERT INTO `User` VALUES (2, 'Jerry Huang', 'jh123', 'Huang@gmail.com','pass','Chicago');
-INSERT INTO `User` VALUES (3, 'Brown Snow', 'snowman', 'Snow@gmail.com','pass','Miami');
-INSERT INTO `User` VALUES (4, 'Guru Singh', 'guguS', 'Singh@gmail.com','pass','Miami');
-INSERT INTO `User` VALUES (5, 'Ivy Yu', 'yuyuyu', 'Yu@gmail.com','pass','Chicago');
-INSERT INTO `User` VALUES (6, 'Jack Smith', 'jackblack', 'Smith@gmail.com','pass','New York City');
-INSERT INTO `User` VALUES (7, 'Jane Jing', 'jjjing', 'Jing@gmail.com','pass','New York City');
-INSERT INTO `User` VALUES (8, 'Tom White', 'whiteT', 'White@gmail.com','pass','New York City');
+INSERT INTO `User` VALUES (1, 'NancyInQueens', 'Nacy', 'nacy@gmail.com','pass','New York City');
+INSERT INTO `User` VALUES (2, 'jh123', 'Jerry Huang', 'Huang@gmail.com','pass','Chicago');
+INSERT INTO `User` VALUES (3, 'snowman', 'Brown Snow', 'Snow@gmail.com','pass','Miami');
+INSERT INTO `User` VALUES (4, 'guguS','Guru Singh', 'Singh@gmail.com','pass','Miami');
+INSERT INTO `User` VALUES (5, 'yuyuyu', 'Ivy Yu', 'Yu@gmail.com','pass','Chicago');
+INSERT INTO `User` VALUES (6, 'jackblack', 'Jack Smith', 'Smith@gmail.com','pass','New York City');
+INSERT INTO `User` VALUES (7, 'jjjing', 'Jane Jing', 'Jing@gmail.com','pass','New York City');
+INSERT INTO `User` VALUES (8, 'whiteT', 'Tom White', 'White@gmail.com','pass','New York City');
+INSERT INTO `User` VALUES (9, 'ardd', 'Antonio Rod', 'rod@gmail.com','pass','New York City');
 
 INSERT INTO `Follow` VALUES (1, 2, '2017-11-05 12:20:00');
 INSERT INTO `Follow` VALUES (1, 3, '2016-10-01 17:40:00');
