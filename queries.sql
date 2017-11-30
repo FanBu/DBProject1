@@ -1,13 +1,11 @@
 -- 2
-SELECT aid, aname, (n_plays_t.n_plays) AS played 
-FROM Artist
-LEFT JOIN
-
-(SELECT COUNT(tid) AS n_plays,by_aid 
-FROM Track
-GROUP BY by_aid) AS n_plays_t
-
-ON Artist.aid = n_plays_t.by_aid
+SELECT aid, aname, (playcounttable.playcount) AS count 
+FROM Artist LEFT JOIN
+(SELECT COUNT(Track.tid) AS playcount, by_aid 
+FROM Track, PlayHistory
+WHERE Track.tid = PlayHistory.tid
+GROUP BY by_aid) AS playcounttable
+ON Artist.aid = playcounttable.by_aid;
 
 
 -- 3
