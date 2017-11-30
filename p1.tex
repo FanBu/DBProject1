@@ -78,9 +78,12 @@
 	And the Relational Schema is as follows.\\
 	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
 	Artist(\underline{\smash{aid}}, aname, description)\\
-	Track(\underline{\smash{tid}}, title, duration, genre)\\
-	AlbumPlaylist(\underline{\smash{alid}}, title, create\_time, count, type)\\
+	Track(\underline{\smash{tid}}, title, duration, genre, by\_aid)\\
+	AlbumPlaylist(\underline{\smash{alid}}, title, time, count, type, by\_uid)\\
 	PlayHistory(\underline{\smash{uid}}, \underline{\smash{time}}, tid, alid)\\
 	Follow(\underline{\smash{uid}}, \underline{\smash{f\_uid}}, time)\\
+	Rating(\underline{\smash{uid}}, \underline{\smash{time}}, tid, rate)\\
+	Like(\underline{\smash{uid}}, \underline{\smash{time}}, aid)\\
+	Trackalbum(\underline{\smash{tid}}, \underline{\smash{alid}}, order)\\
 	
 \end{document}
