@@ -19,3 +19,11 @@ GROUP BY by_aid) AS totalcounttable, Artist
 WHERE jazzcounttable.by_aid = totalcounttable.by_aid
 AND jazzcounttable.by_aid = Artist.aid
 AND 2 * jazzcount >= totalcount;
+
+-- 5
+SELECT alid, title, time, type, count, by_uid FROM AlbumPlaylist,
+(SELECT f_uid FROM Follow, User
+WHERE Follow.uid = User.uid
+AND uname = 'NancyInQueens') AS uidtable
+WHERE AlbumPlaylist.type = 'playlist'
+AND AlbumPlaylist.by_uid = uidtable.f_uid;
