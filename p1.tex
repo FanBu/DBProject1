@@ -75,7 +75,7 @@
 		A user can only follow another user once, which means the status between a user and another is either followed or not followed. After a user unfollowing another user, he can follow the specific user again.
 	\end{enumerate}
 	\section{Relational Schema}
-	And the Relational Schema is as follows.\\
+	And the Relational Schemas are as follows.\\
 	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
 	Artist(\underline{\smash{aid}}, aname, description)\\
 	Track(\underline{\smash{tid}}, title, duration, genre, by\_aid)\\
@@ -98,7 +98,9 @@
 		Facilatate the checking of updates for violation of database integrity constraints.
 	\end{enumerate}
 	\subsection{First Normal Form Validation}
+	In our current situation, every domain in our relational schema is considered to be indivisible units, hence every domain is atomic. So the requirements of first normal form is met.
 	\subsection{Boyce-Codd Normal Form Validation}
+	To check whether the schema is in 
 	\subsection{Third Normal Form Validation}
 	\subsection{Fourth Normal Form Validation}
 	
