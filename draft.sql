@@ -151,8 +151,8 @@ INSERT INTO `PlayHistory` VALUES (8, '2015-04-05 12:20:00',1,3);
 
 
 
-DROP TABLE IF EXISTS `Trackalbum`;
-CREATE TABLE `Trackalbum` (
+DROP TABLE IF EXISTS `TrackAlbum`;
+CREATE TABLE `TrackAlbum` (
   `tid` INT NOT NULL,
   `alid` INT NOT NULL,  
   `order` INT NOT NULL,
@@ -160,10 +160,10 @@ CREATE TABLE `Trackalbum` (
   FOREIGN KEY (`alid`) REFERENCES `AlbumPlaylist` (`alid`),
   FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`));
 
-INSERT INTO `Trackalbum` VALUES (1, 1, 1);
-INSERT INTO `Trackalbum` VALUES (2, 1, 2);
-INSERT INTO `Trackalbum` VALUES (3, 1, 3);
-INSERT INTO `Trackalbum` VALUES (4, 2, 1);
+INSERT INTO `TrackAlbum` VALUES (1, 1, 1);
+INSERT INTO `TrackAlbum` VALUES (2, 1, 2);
+INSERT INTO `TrackAlbum` VALUES (3, 1, 3);
+INSERT INTO `TrackAlbum` VALUES (4, 2, 1);
 
 
 
