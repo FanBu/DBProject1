@@ -40,69 +40,28 @@ AND uname = 'NancyInQueens') AS uidtable
 WHERE AlbumPlaylist.type = 'playlist'
 AND AlbumPlaylist.by_uid = uidtable.f_uid;
 
--- 6
--- Better use CONTAINS? returns ranks using AND, NEAR, ACCUM
--- But it's a SQL thing
-SELECT tid FROM Track
-WHERE CONTAINS(Track.title,'"Our" OR "Virgo" OR "Stolen"')
-
-
-
--- what does it mean by some set?
--- match at least of one element in a set or all elements in a set
-
-SELECT Track_table.title 
-FROM
-	(SELECT * 
-	FROM Track,
-		(SELECT aid 
-		FROM Artist
-		WHERE aname LIKE '%c%'
-		OR aname LIKE '%l%') 
-		AS aid_table
-	WHERE aid_table.aid = Track.by_aid) 
-	AS A_T_table
-
-	full join 
-
-	(SELECT * 
-	FROM Track
-	WHERE title LIKE '%c%'
-	OR title LIKE '%l%') 
-	AS Track_table
-	
-	ON A_T_table.tid = Track_table.tid
-
 -- 7
-SELECT aid FROM
+SELECT counttotaltable.aid AS aid1, commontable.aid2
+FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
+(SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon FROM 
+(SELECT aid, uid FROM Likes) AS likes1,
+(SELECT aid, uid FROM Likes) AS likes2
+WHERE likes1.uid = likes2.uid
+GROUP BY likes1.aid, likes2.aid) AS commontable
+WHERE NOT counttotaltable.aid = commontable.aid2
+AND counttotaltable.aid = commontable.aid1
+AND counttotaltable.countuid <= commontable.countcommon * 10;
 
-(SELECT uid 
-FROM Likes
-GROUP BY aid) AS table1,
-
-(SELECT uid 
-FROM Likes
-GROUP BY aid) AS table2
-
-WHERE table1.uid = table2.uid 
-
--- this is total number of Fans
-(SELECT COUNT(uid) 
-FROM Likes 
-GROUP BY aid) n_uid
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- check similarity
+SELECT counttotaltable.aid AS aid1, commontable.aid2,
+commontable.countcommon / counttotaltable.countuid AS similarity
+FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
+(SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon FROM 
+(SELECT aid, uid FROM Likes) AS likes1,
+(SELECT aid, uid FROM Likes) AS likes2
+WHERE likes1.uid = likes2.uid
+GROUP BY likes1.aid, likes2.aid) AS commontable
+WHERE NOT counttotaltable.aid = commontable.aid2
+AND counttotaltable.aid = commontable.aid1
+ORDER BY similarity DESC;
+>>>>>>> 456dc47f53a5c98dbdcbedc9d44e7fd9f0694b75
