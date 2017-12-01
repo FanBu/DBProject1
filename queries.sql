@@ -44,8 +44,7 @@ AND AlbumPlaylist.by_uid = uidtable.f_uid;
 SELECT counttotaltable.aid AS aid1, commontable.aid2
 FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
 (SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon FROM 
-(SELECT aid, uid FROM Likes) AS likes1,
-(SELECT aid, uid FROM Likes) AS likes2
+Likes likes1, Likes likes2
 WHERE likes1.uid = likes2.uid
 GROUP BY likes1.aid, likes2.aid) AS commontable
 WHERE NOT counttotaltable.aid = commontable.aid2
@@ -57,8 +56,7 @@ SELECT counttotaltable.aid AS aid1, commontable.aid2,
 commontable.countcommon / counttotaltable.countuid AS similarity
 FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
 (SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon FROM 
-(SELECT aid, uid FROM Likes) AS likes1,
-(SELECT aid, uid FROM Likes) AS likes2
+Likes likes1, Likes likes2
 WHERE likes1.uid = likes2.uid
 GROUP BY likes1.aid, likes2.aid) AS commontable
 WHERE NOT counttotaltable.aid = commontable.aid2
