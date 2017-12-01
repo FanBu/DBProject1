@@ -64,4 +64,3 @@ GROUP BY likes1.aid, likes2.aid) AS commontable
 WHERE NOT counttotaltable.aid = commontable.aid2
 AND counttotaltable.aid = commontable.aid1
 ORDER BY similarity DESC;
->>>>>>> 456dc47f53a5c98dbdcbedc9d44e7fd9f0694b75
