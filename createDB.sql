@@ -21,8 +21,8 @@ CREATE TABLE `User` (
   `uname` varchar(45) NOT NULL,
   `nickname` varchar(45) DEFAULT NULL,
   `email` varchar(45) NOT NULL,
-  `password` varchar(10) DEFAULT NULL,
-  `city` varchar(45) NOT NULL,
+  `password` varchar(10) NOT NULL,
+  `city` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`uid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
