@@ -48,14 +48,14 @@ CREATE TABLE `Follow` (
   CONSTRAINT `Follow_ibfk_2` FOREIGN KEY (`f_uid`) REFERENCES `User` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `Like` (
+CREATE TABLE `Likes` (
   `uid` int(11) NOT NULL,
   `aid` int(11) NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`time`),
   KEY `aid` (`aid`),
-  CONSTRAINT `Like_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
-  CONSTRAINT `Like_ibfk_2` FOREIGN KEY (`aid`) REFERENCES `Artist` (`aid`)
+  CONSTRAINT `Likes_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+  CONSTRAINT `Likes_ibfk_2` FOREIGN KEY (`aid`) REFERENCES `Artist` (`aid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `PlayHistory` (
