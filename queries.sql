@@ -43,13 +43,13 @@ AND AlbumPlaylist.by_uid = uidtable.f_uid;
 SELECT tid, title, duration, genre, by_aid FROM Artist, Track 
 WHERE Artist.aid = Track.by_aid
 AND (MATCH(title)
-AGAINST ('M*' IN BOOLEAN MODE)
+AGAINST ('S*' IN BOOLEAN MODE)
 OR MATCH(aname, description)
-AGAINST ('M*' IN BOOLEAN MODE))
+AGAINST ('S*' IN BOOLEAN MODE))
 ORDER BY MATCH(title)
-AGAINST ('M*' IN BOOLEAN MODE),
+AGAINST ('S*' IN BOOLEAN MODE) DESC,
 MATCH(aname, description)
-AGAINST ('M*' IN BOOLEAN MODE) DESC;
+AGAINST ('S*' IN BOOLEAN MODE) DESC;
 
 -- 7
 SELECT counttotaltable.aid AS aid1, commontable.aid2
