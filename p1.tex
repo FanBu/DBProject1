@@ -400,7 +400,24 @@
 		INSERT INTO User(nickname, uname, password) VALUES ('Jeremy Bo', 'jbj', 'pass');
 	\end{spverbatim}
 	\subsubsection{Result}
-	
+	\begin{verbatim}
+		Query OK, 1 row affected (0.00 sec)
+		
+		+-----+---------------+-------------+-----------------+----------+---------------+
+		| uid | uname         | nickname    | email           | password | city          |
+		+-----+---------------+-------------+-----------------+----------+---------------+
+		|   1 | NancyInQueens | Nacy        | nacy@gmail.com  | pass     | New York City |
+		|   2 | jh123         | Jerry Huang | Huang@gmail.com | pass     | Chicago       |
+		|   3 | snowman       | Brown Snow  | Snow@gmail.com  | pass     | Miami         |
+		|   4 | guguS         | Guru Singh  | Singh@gmail.com | pass     | Miami         |
+		|   5 | yuyuyu        | Ivy Yu      | Yu@gmail.com    | pass     | Chicago       |
+		|   6 | jackblack     | Jack Smith  | Smith@gmail.com | pass     | New York City |
+		|   7 | jjjing        | Jane Jing   | Jing@gmail.com  | pass     | New York City |
+		|   8 | whiteT        | Tom White   | White@gmail.com | pass     | New York City |
+		|   9 | ardd          | Antonio Rod | rod@gmail.com   | pass     | New York City |
+		|  10 | jbj           | Jeremy Bo   | NULL            | pass     | NULL          |
+		+-----+---------------+-------------+-----------------+----------+---------------+
+	\end{verbatim}
 	
 	\subsection{Query 2}
 	For each artist, list their ID, name, and how many times their tracks have been played by users.
@@ -415,6 +432,17 @@
 		ON Artist.aid = playcounttable.by_aid;
 	\end{spverbatim}
 	\subsubsection{Result}
+	\begin{spverbatim}
+		+-----+---------------------+-------+
+		| aid | aname               | count |
+		+-----+---------------------+-------+
+		|   1 | Bob Jones           |     1 |
+		|   2 | Punk Band           |     1 |
+		|   3 | David Earle         |     1 |
+		|   4 | Bob Jones and Jones |     1 |
+		|   5 | Fan Bu              |     0 |
+		+-----+---------------------+-------+
+	\end{spverbatim}
 	
 	\subsection{Query 3}
 	List all artists that are mainly playing Jazz, meaning that at least half of their tracks are of genre Jazz.
@@ -433,6 +461,14 @@
 		AND 2 * jazzcount >= totalcount;
 	\end{spverbatim}
 	\subsubsection{Result}
+	\begin{spverbatim}
+		+-----+---------------------+-----------------+
+		| aid | aname               | description     |
+		+-----+---------------------+-----------------+
+		|   1 | Bob Jones           | just a singer   |
+		|   4 | Bob Jones and Jones | joined by Jones |
+		+-----+---------------------+-----------------+
+	\end{spverbatim}
 	
 	\subsection{Query 4}
 	Insert a new rating given by a user for a track.
@@ -441,6 +477,21 @@
 		INSERT INTO Rating(uid, tid, time, rate) VALUES (4, 1, '2017-11-30 12:50:00', 5);
 	\end{spverbatim}
 	\subsubsection{Result}
+	\begin{spverbatim}
+		Query OK, 1 row affected (0.00 sec)
+		
+		+-----+-----+---------------------+------+
+		| uid | tid | time                | rate |
+		+-----+-----+---------------------+------+
+		|   1 |   1 | 2015-11-05 12:20:00 |    4 |
+		|   1 |   2 | 2016-01-01 12:00:00 |    5 |
+		|   1 |   5 | 2011-11-11 11:11:00 |    1 |
+		|   2 |   3 | 2015-11-05 12:20:00 |    3 |
+		|   3 |   3 | 2016-01-01 12:00:00 |    4 |
+		|   4 |   1 | 2017-11-30 12:50:00 |    5 |
+		|   4 |   4 | 2011-11-11 11:11:00 |    4 |
+		+-----+-----+---------------------+------+
+	\end{spverbatim}
 	
 	\subsection{Query 5}
 	For a particular user, say “NancyInQueens”, list all playlists that were made by users that she follows.
@@ -454,6 +505,13 @@
 		AND AlbumPlaylist.by_uid = uidtable.f_uid;
 	\end{spverbatim}
 	\subsubsection{Result}
+	\begin{spverbatim}
+		+------+--------------+---------------------+----------+-------+--------+
+		| alid | title        | time                | type     | count | by_uid |
+		+------+--------------+---------------------+----------+-------+--------+
+		|    1 | Songs of Rod | 2015-11-05 12:20:00 | playlist |     2 |      2 |
+		+------+--------------+---------------------+----------+-------+--------+
+	\end{spverbatim}
 	
 	\subsection{Query 6}
 	List all songs where the track title or artist title matches some set of keywords (if possible, use
@@ -473,10 +531,24 @@
 		AGAINST ('S*' IN BOOLEAN MODE) DESC;
 	\end{spverbatim}
 	\subsubsection{Result}
+	\begin{spverbatim}
+		+-----+-------------------------+----------+-----------+--------+
+		| tid | title                   | duration | genre     | by_aid |
+		+-----+-------------------------+----------+-----------+--------+
+		|   2 | Our Song                |   200000 | Blues     |      1 |
+		|   3 | Stolen Moments          |   201000 | Classical |      2 |
+		|   5 | If You Could See Me Now |   170000 | Jazz      |      4 |
+		|   4 | Virgo                   |   190000 | Blues     |      3 |
+		|   1 | My Romance              |   180000 | Jazz      |      1 |
+		+-----+-------------------------+----------+-----------+--------+
+	\end{spverbatim}
 	
 	\subsection{Query 7}
 	Find pairs of related artists, where two artists are related if they have many fans in common. (Define
-	this appropriately.)
+	this appropriately.)\\
+	We define that artist $A$ and artist $B$ are similar if and only if the number of common fans between $A$ and $B$, $c_{common}$, and the number of fans of $A$, $c_A$ has the following relation:
+	$$ \frac{c_{common}}{c_A} \geq 10\%.$$
+	And the similarity between $A$ and $B$ is defined as $c_{common} / c_A$. Hence we know that the similarity between $A$ an $B$ is not necessarily equal to the similarity between $B$ and $A$.
 	\subsubsection{SQL Script}
 	\begin{spverbatim}
 		SELECT counttotaltable.aid AS aid1, commontable.aid2,
@@ -490,9 +562,18 @@
 		WHERE counttotaltable.aid = commontable.aid1
 		AND counttotaltable.countuid <= commontable.countcommon * 10;
 	\end{spverbatim}
-	
-	
+
 	\subsubsection{Result}
+	\begin{spverbatim}
+		+------+------+------------+
+		| aid1 | aid2 | similarity |
+		+------+------+------------+
+		|    1 |    2 | 1.0000     |
+		|    2 |    1 | 0.5000     |
+		|    2 |    3 | 0.5000     |
+		|    3 |    2 | 1.0000     |
+		+------+------+------------+
+	\end{spverbatim}
 	
 	
 \end{document}
