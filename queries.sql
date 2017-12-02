@@ -5,7 +5,7 @@ INSERT INTO User VALUES (NULL,'jeremyBo','jbj',' ','password',' ');
 ROLLBACK;
 
 -- 2
-SELECT aid, aname, (playcounttable.playcount) AS count 
+SELECT aid, aname, COALESCE(playcounttable.playcount, 0) AS count 
 FROM Artist LEFT JOIN
 (SELECT COUNT(Track.tid) AS playcount, by_aid 
 FROM Track, PlayHistory

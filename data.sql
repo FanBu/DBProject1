@@ -25,6 +25,7 @@ INSERT INTO `Artist` VALUES (1, 'Bob Jones', 'just a singer');
 INSERT INTO `Artist` VALUES (2, 'Punk Band', 'your average Punk band');
 INSERT INTO `Artist` VALUES (3, 'David Earle', 'just another singer with a beard');
 INSERT INTO `Artist` VALUES (4, 'Bob Jones and Jones', 'joined by Jones');
+INSERT INTO `Artist` VALUES (5, 'Fan Bu', 'An artist in the future');
 
 INSERT INTO `Track` VALUES (1, 180000, 'My Romance', 'Jazz', 1);
 INSERT INTO `Track` VALUES (2, 200000, 'Our Song', 'Blues', 1);
