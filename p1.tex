@@ -1,12 +1,13 @@
 \documentclass[letter, 12pt]{report}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{spverbatim}
 \graphicspath{ {images/} }
 
 \title{
 	{Project Report}\\
 	{\large CS6083 Project \#1}}
-\author{Fan Bu\and Bohan Zhang}
+\author{Fan Bu \\ fb1102@nyu.edu \and Bohan Zhang \\ bz906@nyu.edu}
 \date{\today}
 
 \usepackage[left=1in, right=1in, top=1in, bottom=0.5in, includefoot, headheight=13.6pt]{geometry}
@@ -75,6 +76,7 @@
 		A user can only follow another user once, which means the status between a user and another is either followed or not followed. After a user unfollowing another user, he can follow the specific user again.
 	\end{enumerate}
 	\section{Relational Schema}
+	\subsection{Relational Schema and Keys}
 	And the Relational Schemas are as follows.\\
 	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
 	Artist(\underline{\smash{aid}}, aname, description)\\
@@ -84,7 +86,22 @@
 	Follow(\underline{\smash{uid}}, \underline{\smash{f\_uid}}, time)\\
 	Rating(\underline{\smash{uid}}, \underline{\smash{time}}, tid, rate)\\
 	Like(\underline{\smash{uid}}, \underline{\smash{time}}, aid)\\
-	Trackalbum(\underline{\smash{tid}}, \underline{\smash{alid}}, order)\\
+	TrackAlbum(\underline{\smash{tid}}, \underline{\smash{alid}}, order)\\
+	The attributes with underlines are the keys of the corresponding relation.
+	\subsection{Foreign Keys}
+	Foreign key Track(by\_aid) references Artist(aid).\\
+	Foreign key AlbumPlaylist(by\_uid) references User(uid).\\
+	Foreign key PlayHistory(uid) references User(uid).\\
+	Foreign key PlayHistory(tid) references Track(tid).\\
+	Foreign key PlayHistory(alid) references AlbumPlaylist(alid).\\
+	Foreign key Follow(uid) references User(uid).\\
+	Foreign key Follow(f\_uid) references User(uid).\\
+	Foreign key Rating(uid) references User(uid).\\
+	Foreign key Rating(tid) references Track(tid).\\
+	Foreign key Like(uid) references User(uid).\\
+	Foreign key Like(aid) references Artist(aid).\\
+	Foreign key TrackAlbum(tid) references Track(tid).\\
+	Foreign key TrackAlbum(alid) references AlbumPlaylist(alid).\\
 	
 	
 	\section{Normalization Validation}
@@ -125,5 +142,114 @@
 	\subsection{Fourth Normal Form Validation}
 	Since there is not multivalued dependency in any relational schema, so every relational schema is in Fourth Normal Form.
 	
+	\section{Database Schema}
+	Database schemas are as follows.
+	\begin{spverbatim}
+	CREATE TABLE `Artist` (
+	`aid` int(11) NOT NULL AUTO_INCREMENT,
+	`aname` varchar(45) NOT NULL,
+	`description` varchar(200) NOT NULL,
+	PRIMARY KEY (`aid`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Track` (
+	`tid` int(11) NOT NULL AUTO_INCREMENT,
+	`duration` int(11) NOT NULL,
+	`title` varchar(45) NOT NULL,
+	`genre` varchar(45) NOT NULL,
+	`by_aid` int(11) NOT NULL,
+	PRIMARY KEY (`tid`),
+	KEY `by_aid` (`by_aid`),
+	CONSTRAINT `Track_ibfk_1` FOREIGN KEY (`by_aid`) REFERENCES `Artist` (`aid`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `User` (
+	`uid` int(11) NOT NULL AUTO_INCREMENT,
+	`uname` varchar(45) NOT NULL,
+	`nickname` varchar(45) DEFAULT NULL,
+	`email` varchar(45) DEFAULT NULL,
+	`password` varchar(10) NOT NULL,
+	`city` varchar(45) DEFAULT NULL,
+	PRIMARY KEY (`uid`),
+	UNIQUE KEY `uname` (`uname`),
+	UNIQUE KEY `email` (`email`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
+	
+	CREATE TABLE `AlbumPlaylist` (
+	`alid` int(11) NOT NULL AUTO_INCREMENT,
+	`title` varchar(200) NOT NULL,
+	`time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`type` enum('album','playlist') DEFAULT NULL,
+	`count` int(11) NOT NULL,
+	`by_uid` int(11) DEFAULT NULL,
+	PRIMARY KEY (`alid`),
+	KEY `by_uid` (`by_uid`),
+	CONSTRAINT `AlbumPlaylist_ibfk_1` FOREIGN KEY (`by_uid`) REFERENCES `User` (`uid`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Follow` (
+	`uid` int(11) NOT NULL,
+	`f_uid` int(11) NOT NULL,
+	`time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`uid`,`f_uid`),
+	KEY `f_uid` (`f_uid`),
+	CONSTRAINT `Follow_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `Follow_ibfk_2` FOREIGN KEY (`f_uid`) REFERENCES `User` (`uid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Likes` (
+	`uid` int(11) NOT NULL,
+	`aid` int(11) NOT NULL,
+	`time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`uid`,`time`),
+	KEY `aid` (`aid`),
+	CONSTRAINT `Likes_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `Likes_ibfk_2` FOREIGN KEY (`aid`) REFERENCES `Artist` (`aid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `PlayHistory` (
+	`uid` int(11) NOT NULL,
+	`time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`tid` int(11) NOT NULL,
+	`alid` int(11) NOT NULL,
+	PRIMARY KEY (`uid`,`time`),
+	KEY `tid` (`tid`),
+	KEY `alid` (`alid`),
+	CONSTRAINT `PlayHistory_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `PlayHistory_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`),
+	CONSTRAINT `PlayHistory_ibfk_3` FOREIGN KEY (`alid`) REFERENCES `AlbumPlaylist` (`alid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Rating` (
+	`uid` int(11) NOT NULL,
+	`tid` int(11) NOT NULL,
+	`time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`rate` int(1) NOT NULL,
+	PRIMARY KEY (`uid`,`tid`),
+	KEY `tid` (`tid`),
+	CONSTRAINT `Rating_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `Rating_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `TrackAlbum` (
+	`tid` int(11) NOT NULL,
+	`alid` int(11) NOT NULL,
+	`order` int(11) NOT NULL,
+	PRIMARY KEY (`tid`,`alid`),
+	KEY `alid` (`alid`),
+	CONSTRAINT `TrackAlbum_ibfk_1` FOREIGN KEY (`alid`) REFERENCES `AlbumPlaylist` (`alid`),
+	CONSTRAINT `TrackAlbum_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	\end{spverbatim}
+	
 	\chapter{Testing}
+	\section{Sample Queries and Result}
+	\subsection{Query 1}
+	Create a record for a new user account, with a name, a login name, and a password.
+	\subsubsection{Query}
+	\begin{spverbatim}
+		INSERT INTO User(nickname, uname, password) VALUES ('Jeremy Bo', 'jbj', 'pass');
+	\end{spverbatim}
+	\subsubsection{Result}
+	
 \end{document}

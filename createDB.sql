@@ -20,11 +20,13 @@ CREATE TABLE `User` (
   `uid` int(11) NOT NULL AUTO_INCREMENT,
   `uname` varchar(45) NOT NULL,
   `nickname` varchar(45) DEFAULT NULL,
-  `email` varchar(45) NOT NULL,
+  `email` varchar(45) DEFAULT NULL,
   `password` varchar(10) NOT NULL,
   `city` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `uname` (`uname`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
 
 CREATE TABLE `AlbumPlaylist` (
   `alid` int(11) NOT NULL AUTO_INCREMENT,
