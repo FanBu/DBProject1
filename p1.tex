@@ -1,4 +1,4 @@
-\documentclass[letter, 12pt]{report}
+\documentclass[letterpaper, 12pt]{report}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{spverbatim}
@@ -23,10 +23,20 @@
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 \fancyhead{}
-\fancyhead[RO,LE]{Project Report - CS6083 Project \#1}
+\fancyhead[R]{Project Report - CS6083 Project \#1}
 \fancyfoot{}
-\fancyfoot[LE,RO]{\thepage}
-\fancyfoot[LO,CE]{Chapter \thechapter}
+\fancyfoot[R]{\thepage}
+\fancyfoot[L]{Chapter \thechapter}
+
+% Redefine the plain page style
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot{}
+	\fancyfoot[R]{\thepage}
+	\fancyfoot[L]{Chapter \thechapter}
+	\renewcommand{\headrulewidth}{0pt}% Line at the header invisible
+	\renewcommand{\footrulewidth}{0.4pt}% Line at the footer visible
+}
 
 \usepackage{tikz}
 \usetikzlibrary{er}
@@ -77,7 +87,7 @@
 	\end{enumerate}
 	\section{Relational Schema}
 	\subsection{Relational Schema and Keys}
-	And the Relational Schemas are as follows.\\
+	The Relational Schemas are as follows.\\
 	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
 	Artist(\underline{\smash{aid}}, aname, description)\\
 	Track(\underline{\smash{tid}}, title, duration, genre, by\_aid)\\
@@ -214,7 +224,8 @@
 	DATATIME and TIMESTAMP has the same precision. However the range of TIMESTAMP is quite limited from 1970 to 2038. As we know that we may have some old songs or albums before 1970, so using TIMESTAMP prevents those data, which makes DATATIME the only option.
 	
 	\subsubsection{The reason why we use FULLTEXT index.}
-	We use FULLTEXT index because 
+	We use FULLTEXT index because it gives us MATCH function by which a set of keywords can match multiple columns of text. And it's useful when we write queries as query 6 in the testing chapter.\\
+	Before we add FULLTEXT index, we also changed the setting in my.cnf. The default value of \texttt{innodb\_ft\_min\_token\_size} is 3, which means the words with of length 2 will be treated as trivial words and cannot be keywords. So we changed this value to 1, because we know some tracks or artists may have arbitrary names.\\
 	\chapter{Testing}
 	
 	\section{Normalization Validation}
