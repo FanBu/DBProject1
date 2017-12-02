@@ -28,8 +28,7 @@ AND 2 * jazzcount >= totalcount;
 
 -- 4
 SET autocommit = 0;
-INSERT INTO `Rating` VALUES (4, 4, '2017-11-30 12:50:00', 5);
-
+INSERT INTO Rating(uid, tid, time, rate) VALUES (4, 1, '2017-11-30 12:50:00', 5);
 ROLLBACK;
 
 -- 5
@@ -57,8 +56,8 @@ commontable.countcommon / counttotaltable.countuid AS similarity
 FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
 (SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon FROM 
 Likes likes1, Likes likes2
-WHERE likes1.uid = likes2.uid
+WHERE NOT likes1.aid = likes2.aid
+AND likes1.uid = likes2.uid
 GROUP BY likes1.aid, likes2.aid) AS commontable
-WHERE NOT counttotaltable.aid = commontable.aid2
-AND counttotaltable.aid = commontable.aid1
+WHERE counttotaltable.aid = commontable.aid1
 ORDER BY similarity DESC;

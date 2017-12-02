@@ -246,10 +246,93 @@
 	\section{Sample Queries and Result}
 	\subsection{Query 1}
 	Create a record for a new user account, with a name, a login name, and a password.
-	\subsubsection{Query}
+	\subsubsection{SQL Script}
 	\begin{spverbatim}
 		INSERT INTO User(nickname, uname, password) VALUES ('Jeremy Bo', 'jbj', 'pass');
 	\end{spverbatim}
 	\subsubsection{Result}
 	
+	\subsection{Query 2}
+	For each artist, list their ID, name, and how many times their tracks have been played by users.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT aid, aname, (playcounttable.playcount) AS count 
+		FROM Artist LEFT JOIN
+		(SELECT COUNT(Track.tid) AS playcount, by_aid 
+		FROM Track, PlayHistory
+		WHERE Track.tid = PlayHistory.tid
+		GROUP BY by_aid) AS playcounttable
+		ON Artist.aid = playcounttable.by_aid;
+	\end{spverbatim}
+	\subsubsection{Result}
+	
+	\subsection{Query 3}
+	List all artists that are mainly playing Jazz, meaning that at least half of their tracks are of genre Jazz.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT Artist.aid, aname, description FROM
+		(SELECT COUNT(tid) AS jazzcount, by_aid
+		FROM Track
+		WHERE genre = 'Jazz'
+		GROUP BY by_aid) AS jazzcounttable,
+		(SELECT COUNT(tid) AS totalcount, by_aid
+		FROM Track
+		GROUP BY by_aid) AS totalcounttable, Artist
+		WHERE jazzcounttable.by_aid = totalcounttable.by_aid
+		AND jazzcounttable.by_aid = Artist.aid
+		AND 2 * jazzcount >= totalcount;
+	\end{spverbatim}
+	\subsubsection{Result}
+	
+	\subsection{Query 4}
+	Insert a new rating given by a user for a track.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		INSERT INTO Rating(uid, tid, time, rate) VALUES (4, 1, '2017-11-30 12:50:00', 5);
+	\end{spverbatim}
+	\subsubsection{Result}
+	
+	\subsection{Query 5}
+	For a particular user, say “NancyInQueens”, list all playlists that were made by users that she follows.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT alid, title, time, type, count, by_uid FROM AlbumPlaylist,
+		(SELECT f_uid FROM Follow, User
+		WHERE Follow.uid = User.uid
+		AND uname = 'NancyInQueens') AS uidtable
+		WHERE AlbumPlaylist.type = 'playlist'
+		AND AlbumPlaylist.by_uid = uidtable.f_uid;
+	\end{spverbatim}
+	\subsubsection{Result}
+	
+	\subsection{Query 6}
+	List all songs where the track title or artist title matches some set of keywords (if possible, use
+	``contains'', or otherwise ``like'', for this query).
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT alid, title, time, type, count, by_uid FROM AlbumPlaylist,
+		(SELECT f_uid FROM Follow, User
+		WHERE Follow.uid = User.uid
+		AND uname = 'NancyInQueens') AS uidtable
+		WHERE AlbumPlaylist.type = 'playlist'
+		AND AlbumPlaylist.by_uid = uidtable.f_uid;
+	\end{spverbatim}
+	\subsubsection{Result}
+	
+	\subsection{Query 7}
+	Find pairs of related artists, where two artists are related if they have many fans in common. (Define
+	this appropriately.)
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT counttotaltable.aid AS aid1, commontable.aid2
+		FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
+		(SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon
+		FROM Likes likes1, Likes likes2
+		WHERE likes1.uid = likes2.uid
+		GROUP BY likes1.aid, likes2.aid) AS commontable
+		WHERE NOT counttotaltable.aid = commontable.aid2
+		AND counttotaltable.aid = commontable.aid1
+		AND counttotaltable.countuid <= commontable.countcommon * 10;
+	\end{spverbatim}
+	\subsubsection{Result}
 \end{document}
