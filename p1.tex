@@ -228,6 +228,9 @@
 	\subsubsection{The reason why we choose DATETIME rather than TIMESTAMP.}
 	DATETIME and TIMESTAMP has the same precision. However the range of TIMESTAMP is quite limited from 1970 to 2038. As we know that we may have some old songs or albums before 1970, so using TIMESTAMP prevents those data, which makes DATETIME the only option.
 	
+	\subsubsection{The reason why we set all DATETIME fields default to CURRENT\_TIMESTAMP}
+	We could choose not to add time whenever there is a INSERT in `Likes` table or `Follow` table but then it would be difficult for us to analyze users' behaviour. However, if we do so, setting default to current time would be a huge time saver for both developers and users. Secondly, we could prevent the issue where queries failed to insert a correct(in term of format or valid)time. 
+	
 	\subsubsection{The reason why we use FULLTEXT index.}
 	We use FULLTEXT index because it gives us MATCH function by which a set of keywords can match multiple columns of text. And it's useful when we write queries as query 6 in the testing chapter.\\
 	Before we add FULLTEXT index, we also changed the setting in my.cnf. The default value of \texttt{innodb\_ft\_min\_token\_size} is 3, which means the words with of length 2 will be treated as trivial words and cannot be keywords. So we changed this value to 1, because we know some tracks or artists may have arbitrary names.\\
