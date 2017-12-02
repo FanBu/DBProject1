@@ -103,46 +103,8 @@
 	Foreign key TrackAlbum(tid) references Track(tid).\\
 	Foreign key TrackAlbum(alid) references AlbumPlaylist(alid).\\
 	
-	
-	\section{Normalization Validation}
-	In this part, we checked multiple normalization requirements. The reason why we do so is to achieve the following goals:
-	\begin{enumerate}
-		\item 
-		Avoid redundant data.
-		\item 
-		Ensure that relationships among attributes are represented.
-		\item 
-		Facilatate the checking of updates for violation of database integrity constraints.
-	\end{enumerate}
-	\subsection{First Normal Form Validation}
-	In our current situation, every domain in our relational schemas is considered to be indivisible unit, hence every domain is atomic. So the requirements of first normal form is met.
-	\subsection{Boyce-Codd Normal Form Validation}
-	To check whether the schemas are in BCNF we have to figure out every functional dependency first.
-	\subsubsection{Functional Dependencies}
-	Following are the all non-trivial functional dependencies.\\
-	$(uid\to uname, nickname, email, city, password)$\\
-	$(uname\to uid, nickname, email, city, password)$\\
-	$(email\to uid, uname ,nickname, city, password)$\\
-	$(aid\to aname, description)$\\
-	$(tid\to title, duration, genre, by\_aid)$\\
-	$(alid\to title, time, count, type, by\_uid)$\\
-	$(uid, time\to tid, alid)$\\
-	$(uid, f\_uid\to time)$\\
-	$(uid, time\to f\_uid)$\\
-	$(uid, time\to tid, rate)$\\
-	$(uid, tid\to time, rate)$\\
-	$(uid, time\to aid)$\\
-	$(uid, aid\to time)$\\
-	$(tid, alid\to order)$\\
-	$(alid, order\to tid)$\\
-	As we can see, every functional dependency above, with the form of $\alpha \to \beta$, has the property of that $\alpha$ is a superkey for the corresponding relation schema $R$. So we can say that our relational schemas are in Boyce-Codd Normal Form.
-	
-	\subsection{Third Normal Form Validation}
-	Since every relation schema is in BCNF, it's in Third Normal Form, too.
-	\subsection{Fourth Normal Form Validation}
-	Since there is not multivalued dependency in any relational schema, so every relational schema is in Fourth Normal Form.
-	
-	\section{Database Schema}
+	\section{Database Schemas}
+	\subsection{Database Schemas Script}
 	Database schemas are as follows.
 	\begin{spverbatim}
 	CREATE TABLE `Artist` (
@@ -241,8 +203,55 @@
 	CONSTRAINT `TrackAlbum_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 	\end{spverbatim}
+	\subsection{Explanation}
+	\subsubsection{The reason why we choose VARCHAR rather than TEXT.}
+	TEXT is stored off the table, and the table has a pointer to the location of the actual storage. So when the data is not in cache, generally, it will consume 1 more disk read before getting the real data. And VARCHAR is stored inside the table, which could be faster. But the downside of VARCHAR is obvious, it will make the blocks contain less rows, and may increase the disk read time if we are doing a scan read. And one more advantage for VARCHAR is that there can be INDEX on VARCHAR, and can not be INDEX other than FULLTEXT on TEXT, so it could be good for our queries.\\
+	Currently, we believe that we don't have huge description of artist, so we choose to use VARCHAR for now. And if in future, we have heavy load on the text, we can change them into TEXT.
+	
+	\subsection{}
+	
 	
 	\chapter{Testing}
+	
+	\section{Normalization Validation}
+	In this part, we checked multiple normalization requirements. The reason why we do so is to achieve the following goals:
+	\begin{enumerate}
+		\item 
+		Avoid redundant data.
+		\item 
+		Ensure that relationships among attributes are represented.
+		\item 
+		Facilatate the checking of updates for violation of database integrity constraints.
+	\end{enumerate}
+	\subsection{First Normal Form Validation}
+	In our current situation, every domain in our relational schemas is considered to be indivisible unit, hence every domain is atomic. So the requirements of first normal form is met.
+	\subsection{Boyce-Codd Normal Form Validation}
+	To check whether the schemas are in BCNF we have to figure out every functional dependency first.
+	\subsubsection{Functional Dependencies}
+	Following are the all non-trivial functional dependencies.\\
+	$(uid\to uname, nickname, email, city, password)$\\
+	$(uname\to uid, nickname, email, city, password)$\\
+	$(email\to uid, uname ,nickname, city, password)$\\
+	$(aid\to aname, description)$\\
+	$(tid\to title, duration, genre, by\_aid)$\\
+	$(alid\to title, time, count, type, by\_uid)$\\
+	$(uid, time\to tid, alid)$\\
+	$(uid, f\_uid\to time)$\\
+	$(uid, time\to f\_uid)$\\
+	$(uid, time\to tid, rate)$\\
+	$(uid, tid\to time, rate)$\\
+	$(uid, time\to aid)$\\
+	$(uid, aid\to time)$\\
+	$(tid, alid\to order)$\\
+	$(alid, order\to tid)$\\
+	As we can see, every functional dependency above, with the form of $\alpha \to \beta$, has the property of that $\alpha$ is a superkey for the corresponding relation schema $R$. So we can say that our relational schemas are in Boyce-Codd Normal Form.
+	
+	\subsection{Third Normal Form Validation}
+	Since every relation schema is in BCNF, it's in Third Normal Form, too.
+	\subsection{Fourth Normal Form Validation}
+	Since there is not multivalued dependency in any relational schema, so every relational schema is in Fourth Normal Form.
+	
+
 	\section{Sample Queries and Results}
 	\subsection{Query 1}
 	Create a record for a new user account, with a name, a login name, and a password.
@@ -308,6 +317,7 @@
 	\subsection{Query 6}
 	List all songs where the track title or artist title matches some set of keywords (if possible, use
 	``contains'', or otherwise ``like'', for this query).
+	
 	\subsubsection{SQL Script}
 	\begin{spverbatim}
 		SELECT alid, title, time, type, count, by_uid FROM AlbumPlaylist,
