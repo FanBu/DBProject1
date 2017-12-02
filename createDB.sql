@@ -2,7 +2,8 @@ CREATE TABLE `Artist` (
   `aid` int(11) NOT NULL AUTO_INCREMENT,
   `aname` varchar(45) NOT NULL,
   `description` varchar(200) NOT NULL,
-  PRIMARY KEY (`aid`)
+  PRIMARY KEY (`aid`),
+  FULLTEXT KEY `anamedesc` (`aname`, `description`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `Track` (
@@ -12,6 +13,7 @@ CREATE TABLE `Track` (
   `genre` varchar(45) NOT NULL,
   `by_aid` int(11) NOT NULL,
   PRIMARY KEY (`tid`),
+  FULLTEXT KEY `title` (`title`),
   KEY `by_aid` (`by_aid`),
   CONSTRAINT `Track_ibfk_1` FOREIGN KEY (`by_aid`) REFERENCES `Artist` (`aid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
