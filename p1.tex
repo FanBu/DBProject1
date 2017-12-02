@@ -111,7 +111,8 @@
 	`aid` int(11) NOT NULL AUTO_INCREMENT,
 	`aname` varchar(45) NOT NULL,
 	`description` varchar(200) NOT NULL,
-	PRIMARY KEY (`aid`)
+	PRIMARY KEY (`aid`),
+	FULLTEXT KEY `anamedesc` (`aname`, `description`)
 	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 	
 	CREATE TABLE `Track` (
@@ -121,6 +122,7 @@
 	`genre` varchar(45) NOT NULL,
 	`by_aid` int(11) NOT NULL,
 	PRIMARY KEY (`tid`),
+	FULLTEXT KEY `title` (`title`),
 	KEY `by_aid` (`by_aid`),
 	CONSTRAINT `Track_ibfk_1` FOREIGN KEY (`by_aid`) REFERENCES `Artist` (`aid`)
 	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
@@ -211,6 +213,8 @@
 	\subsubsection{The reason why we choose DATETIME rather than TIMESTAMP.}
 	DATATIME and TIMESTAMP has the same precision. However the range of TIMESTAMP is quite limited from 1970 to 2038. As we know that we may have some old songs or albums before 1970, so using TIMESTAMP prevents those data, which makes DATATIME the only option.
 	
+	\subsubsection{The reason why we use FULLTEXT index.}
+	We use FULLTEXT index because 
 	\chapter{Testing}
 	
 	\section{Normalization Validation}
@@ -320,12 +324,16 @@
 	
 	\subsubsection{SQL Script}
 	\begin{spverbatim}
-		SELECT alid, title, time, type, count, by_uid FROM AlbumPlaylist,
-		(SELECT f_uid FROM Follow, User
-		WHERE Follow.uid = User.uid
-		AND uname = 'NancyInQueens') AS uidtable
-		WHERE AlbumPlaylist.type = 'playlist'
-		AND AlbumPlaylist.by_uid = uidtable.f_uid;
+		SELECT tid, title, duration, genre, by_aid FROM Artist, Track 
+		WHERE Artist.aid = Track.by_aid
+		AND (MATCH(title)
+		AGAINST ('M*' IN BOOLEAN MODE)
+		OR MATCH(aname, description)
+		AGAINST ('M*' IN BOOLEAN MODE))
+		ORDER BY MATCH(title)
+		AGAINST ('M*' IN BOOLEAN MODE),
+		MATCH(aname, description)
+		AGAINST ('M*' IN BOOLEAN MODE) DESC;
 	\end{spverbatim}
 	\subsubsection{Result}
 	

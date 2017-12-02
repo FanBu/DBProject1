@@ -39,6 +39,18 @@ AND uname = 'NancyInQueens') AS uidtable
 WHERE AlbumPlaylist.type = 'playlist'
 AND AlbumPlaylist.by_uid = uidtable.f_uid;
 
+-- 6
+SELECT tid, title, duration, genre, by_aid FROM Artist, Track 
+WHERE Artist.aid = Track.by_aid
+AND (MATCH(title)
+AGAINST ('M*' IN BOOLEAN MODE)
+OR MATCH(aname, description)
+AGAINST ('M*' IN BOOLEAN MODE))
+ORDER BY MATCH(title)
+AGAINST ('M*' IN BOOLEAN MODE),
+MATCH(aname, description)
+AGAINST ('M*' IN BOOLEAN MODE) DESC;
+
 -- 7
 SELECT counttotaltable.aid AS aid1, commontable.aid2
 FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
