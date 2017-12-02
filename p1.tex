@@ -66,7 +66,8 @@
 	\\
 	For the first part of Chapter 3, we did normalization validation for the schema we designed to show that the schema is both space efficient and suitably normalized.The goals for the normalization is to reduce data redundancy, to check violation of database integrity constrains when there are update and insert operations.\\
 	To make sure our validation is correct, we populate the database with representative data-set that can accurately reflect the attributes fields.
-    Then for the second part, we did several tests to make sure both the schema and sample data are functioning normally for the seven queries. 
+    Then for the second part, we did several tests to make sure both the schema and sample data are functioning normally for the seven queries.\\ 
+    Especially for query 7 we defined how many fans two artists have in common could be defined as "in common". We believe 10\% is a reasonable amount since the demographics of the fans could only vary that much(assume only 10 different age groups). If we define that number as high as 50\%, we might never find pairs of "related" artists who have many fans in common. 
 	
 	
 	\chapter{Design}
@@ -555,7 +556,10 @@
 	this appropriately.)\\
 	We define that artist $A$ and artist $B$ are similar if and only if the number of common fans between $A$ and $B$, $c_{common}$, and the number of fans of $A$, $c_A$ has the following relation:
 	$$ \frac{c_{common}}{c_A} \geq 10\%.$$
-	And the similarity between $A$ and $B$ is defined as $c_{common} / c_A$. Hence we know that the similarity between $A$ an $B$ is not necessarily equal to the similarity between $B$ and $A$.
+	So the similarity between $A$ and $B$ is defined as $c_{common} / c_A$. Hence we know that the similarity between $A$ an $B$ is not necessarily equal to the similarity between $B$ and $A$.\\
+	\\
+	The reasoning behind the 10\% is that we could not define the ratio too high.Otherwise it's feasible that we would never find such "related" artist pairs hence lost the meaning of the query. However, 10\% is only an approximate number under the assumption that there are only limited demographics groups of the fans(By age, 10-15,16-20...for about 10 groups. By occupation, for about 10 categories).
+	
 	\subsubsection{SQL Script}
 	\begin{spverbatim}
 		SELECT counttotaltable.aid AS aid1, commontable.aid2,
