@@ -33,7 +33,7 @@ CREATE TABLE `User` (
 CREATE TABLE `AlbumPlaylist` (
   `alid` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(200) NOT NULL,
-  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` enum('album','playlist') DEFAULT NULL,
   `count` int(11) NOT NULL,
   `by_uid` int(11) DEFAULT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE `AlbumPlaylist` (
 CREATE TABLE `Follow` (
   `uid` int(11) NOT NULL,
   `f_uid` int(11) NOT NULL,
-  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`f_uid`),
   KEY `f_uid` (`f_uid`),
   CONSTRAINT `Follow_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
@@ -55,7 +55,7 @@ CREATE TABLE `Follow` (
 CREATE TABLE `Likes` (
   `uid` int(11) NOT NULL,
   `aid` int(11) NOT NULL,
-  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`time`),
   KEY `aid` (`aid`),
   CONSTRAINT `Likes_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
@@ -64,7 +64,7 @@ CREATE TABLE `Likes` (
 
 CREATE TABLE `PlayHistory` (
   `uid` int(11) NOT NULL,
-  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `tid` int(11) NOT NULL,
   `alid` int(11) NOT NULL,
   PRIMARY KEY (`uid`,`time`),
@@ -78,7 +78,7 @@ CREATE TABLE `PlayHistory` (
 CREATE TABLE `Rating` (
   `uid` int(11) NOT NULL,
   `tid` int(11) NOT NULL,
-  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `rate` int(1) NOT NULL,
   PRIMARY KEY (`uid`,`tid`),
   KEY `tid` (`tid`),
