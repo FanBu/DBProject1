@@ -115,7 +115,7 @@
 	
 	\section{Database Schemas}
 	\subsection{Database Schemas Script}
-	Database schemas are as follows.
+	The database is a MySQL 5.6 database. And the database schemas are as follows.
 	\begin{spverbatim}
 	CREATE TABLE `Artist` (
 	`aid` int(11) NOT NULL AUTO_INCREMENT,
@@ -221,7 +221,7 @@
 	Currently, we believe that we don't have huge description of artist, so we choose to use VARCHAR for now. And if in future, we have heavy load on the text, we can change them into TEXT.
 	
 	\subsubsection{The reason why we choose DATETIME rather than TIMESTAMP.}
-	DATATIME and TIMESTAMP has the same precision. However the range of TIMESTAMP is quite limited from 1970 to 2038. As we know that we may have some old songs or albums before 1970, so using TIMESTAMP prevents those data, which makes DATATIME the only option.
+	DATETIME and TIMESTAMP has the same precision. However the range of TIMESTAMP is quite limited from 1970 to 2038. As we know that we may have some old songs or albums before 1970, so using TIMESTAMP prevents those data, which makes DATETIME the only option.
 	
 	\subsubsection{The reason why we use FULLTEXT index.}
 	We use FULLTEXT index because it gives us MATCH function by which a set of keywords can match multiple columns of text. And it's useful when we write queries as query 6 in the testing chapter.\\
