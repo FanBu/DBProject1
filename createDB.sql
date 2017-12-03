@@ -40,7 +40,7 @@ CREATE TABLE `AlbumPlaylist` (
   PRIMARY KEY (`alid`),
   KEY `by_uid` (`by_uid`),
   CONSTRAINT `AlbumPlaylist_ibfk_1` FOREIGN KEY (`by_uid`) REFERENCES `User` (`uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `Follow` (
   `uid` int(11) NOT NULL,
