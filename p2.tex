@@ -1,0 +1,590 @@
+\documentclass[letterpaper, 12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{spverbatim}
+\graphicspath{ {images/} }
+
+\title{
+	{Project Report}\\
+	{\large CS6083 Project \#2}}
+\author{Fan Bu \\ fb1102@nyu.edu \and Bohan Zhang \\ bz906@nyu.edu}
+\date{\today}
+
+\usepackage[left=1in, right=1in, top=1in, bottom=0.5in, includefoot, headheight=13.6pt]{geometry}
+\usepackage{natbib}
+\usepackage{enumerate}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead{}
+\fancyhead[R]{Project Report - CS6083 Project \#1}
+\fancyfoot{}
+\fancyfoot[R]{\thepage}
+\fancyfoot[L]{Chapter \thechapter}
+
+% Redefine the plain page style
+\fancypagestyle{plain}{%
+	\fancyhf{}%
+	\fancyfoot{}
+	\fancyfoot[R]{\thepage}
+	\fancyfoot[L]{Chapter \thechapter}
+	\renewcommand{\headrulewidth}{0pt}% Line at the header invisible
+	\renewcommand{\footrulewidth}{0.4pt}% Line at the footer visible
+}
+
+\usepackage{tikz}
+\usetikzlibrary{er}
+
+
+% database
+\def\ojoin{\setbox0=\hbox{$\bowtie$}%
+	\rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie}}
+\def\rightouterjoin{\mathbin{\bowtie\mkern-5.8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie\mkern-5.8mu\ojoin}} 
+
+
+
+
+
+\begin{document}
+	\maketitle
+	
+	\tableofcontents
+	
+	\chapter{Introduction}
+	
+	Chapter 2 provides details for the design process. Starting from making a ER diagram, we have designed a relational database that can serve as a relational back-end for the service of a music streaming service similar to Spotify. Secondly, corresponding to the diagram, relational schemas and foreign keys are documented under several reasonable assumptions for the relations between users, tracks, artists and albums/playlist. For the actual implementation of the schemas, however, we have provided details on how we justify our decisions about the DDL layer. For example, we explained why we chose VARCHAR over TEXT as the data type for some data. We also added some constrains (e.g. AUTO\_INCREMENT, NOT NULL and CHARSET=utf8 for some non-English artist names and track titles) by envisioning how the final system looks like for the second part of the project.\\   
+	For the first part of Chapter 3, we did normalization validation for the schemas we designed to show that the schema is both space efficient and suitably normalized.The goals for the normalization is to reduce data redundancy, to check violation of database integrity constrains when there are update and insert operations.\\
+	To make sure our validation is correct, we populate the database with representative data-set that can accurately reflect the attributes fields.
+    Then for the second part, we did several tests to make sure both the schemas and sample data are functioning normally for the seven queries.\\ 
+    Especially for query 7 we defined how many fans two artists have in common could be defined as "in common". We believe 10\% is a reasonable amount since the demographics of the fans could only vary that much (assume only 10 different age groups). If we define that number as high as 50\%, we might never find pairs of "related" artists who have many fans in common. 
+	
+	
+	\chapter{Database Design}
+	\section{ER Diagram}
+	Our ER Diagram is as follows.
+	\begin{center}
+	\includegraphics[width=1\textwidth]{ER1}
+	\end{center}
+	As we designed this ER diagram, we made the following assumptions.
+	\begin{enumerate}
+		\item 
+		Album and playlist are modeled together to better represent the relation between user, playlist, album, and track. Since when a user plays a song, we want to store where the user finds the song, which could be from an album or a playlist, or the user found this song from search. If we seperate album and playlist, we still can trace the relation when building the website, but it will not be elegant to model it in ER diagram.
+		\item 
+		A playlist is created by a user, and a user can create many playlists.
+		\item 
+		A track, which is a piece of music, is performed by a single artist. And a single artist, which in fact can be a single person or a music band, can play many tracks.
+		\item 
+		A user can only play one track at a moment.
+		\item 
+		PlayHistory is a weak entity, and it has a partial key, time.
+		\item 
+		Every entity in the PlayHistory entity set participates in at least one relationship in the plays relationship set. And every entity in the PlayHistory entity set participates in at least one relationship in the with relationship set. But entities in PlayHistory is allowed not to participate in the any relationship in from relashiship set, which allows a user play a song directly rather than from any album or playlist.
+		\item 
+		A user can only follow another user once, which means the status between a user and another is either followed or not followed. After a user unfollowing another user, he can follow the specific user again.
+	\end{enumerate}
+	\section{Relational Schema}
+	\subsection{Relational Schema and Keys}
+	The Relational Schemas are as follows.\\
+	User(\underline{\smash{uid}}, uname, nickname, email, city, password)\\
+	Artist(\underline{\smash{aid}}, aname, description)\\
+	Track(\underline{\smash{tid}}, title, duration, genre, by\_aid)\\
+	AlbumPlaylist(\underline{\smash{alid}}, title, time, count, type, by\_uid)\\
+	PlayHistory(\underline{\smash{uid}}, \underline{\smash{time}}, tid, alid)\\
+	Follow(\underline{\smash{uid}}, \underline{\smash{f\_uid}}, time)\\
+	Rating(\underline{\smash{uid}}, \underline{\smash{time}}, tid, rate)\\
+	Like(\underline{\smash{uid}}, \underline{\smash{time}}, aid)\\
+	TrackAlbum(\underline{\smash{tid}}, \underline{\smash{alid}}, order)\\
+	The attributes with underlines are the keys of the corresponding relation.
+	\subsection{Foreign Keys}
+	Foreign key Track(by\_aid) references Artist(aid).\\
+	Foreign key AlbumPlaylist(by\_uid) references User(uid).\\
+	Foreign key PlayHistory(uid) references User(uid).\\
+	Foreign key PlayHistory(tid) references Track(tid).\\
+	Foreign key PlayHistory(alid) references AlbumPlaylist(alid).\\
+	Foreign key Follow(uid) references User(uid).\\
+	Foreign key Follow(f\_uid) references User(uid).\\
+	Foreign key Rating(uid) references User(uid).\\
+	Foreign key Rating(tid) references Track(tid).\\
+	Foreign key Like(uid) references User(uid).\\
+	Foreign key Like(aid) references Artist(aid).\\
+	Foreign key TrackAlbum(tid) references Track(tid).\\
+	Foreign key TrackAlbum(alid) references AlbumPlaylist(alid).\\
+	
+	\section{Database Schemas}
+	\subsection{Database Schemas Script}
+	The database is a MySQL 5.6 database. And the database schemas are as follows.
+	\begin{spverbatim}
+	CREATE TABLE `Artist` (
+	`aid` int(11) NOT NULL AUTO_INCREMENT,
+	`aname` varchar(45) NOT NULL,
+	`description` varchar(200) NOT NULL,
+	PRIMARY KEY (`aid`),
+	FULLTEXT KEY `anamedesc` (`aname`, `description`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Track` (
+	`tid` int(11) NOT NULL AUTO_INCREMENT,
+	`duration` int(11) NOT NULL,
+	`title` varchar(45) NOT NULL,
+	`genre` varchar(45) NOT NULL,
+	`by_aid` int(11) NOT NULL,
+	PRIMARY KEY (`tid`),
+	FULLTEXT KEY `title` (`title`),
+	KEY `by_aid` (`by_aid`),
+	CONSTRAINT `Track_ibfk_1` FOREIGN KEY (`by_aid`) REFERENCES `Artist` (`aid`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `User` (
+	`uid` int(11) NOT NULL AUTO_INCREMENT,
+	`uname` varchar(45) NOT NULL,
+	`nickname` varchar(45) DEFAULT NULL,
+	`email` varchar(45) DEFAULT NULL,
+	`password` varchar(10) NOT NULL,
+	`city` varchar(45) DEFAULT NULL,
+	PRIMARY KEY (`uid`),
+	UNIQUE KEY `uname` (`uname`),
+	UNIQUE KEY `email` (`email`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `AlbumPlaylist` (
+	`alid` int(11) NOT NULL AUTO_INCREMENT,
+	`title` varchar(200) NOT NULL,
+	`time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`type` enum('album','playlist') DEFAULT NULL,
+	`count` int(11) NOT NULL,
+	`by_uid` int(11) DEFAULT NULL,
+	PRIMARY KEY (`alid`),
+	KEY `by_uid` (`by_uid`),
+	CONSTRAINT `AlbumPlaylist_ibfk_1` FOREIGN KEY (`by_uid`) REFERENCES `User` (`uid`)
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Follow` (
+	`uid` int(11) NOT NULL,
+	`f_uid` int(11) NOT NULL,
+	`time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`uid`,`f_uid`),
+	KEY `f_uid` (`f_uid`),
+	CONSTRAINT `Follow_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `Follow_ibfk_2` FOREIGN KEY (`f_uid`) REFERENCES `User` (`uid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Likes` (
+	`uid` int(11) NOT NULL,
+	`aid` int(11) NOT NULL,
+	`time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`uid`,`time`),
+	KEY `aid` (`aid`),
+	CONSTRAINT `Likes_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `Likes_ibfk_2` FOREIGN KEY (`aid`) REFERENCES `Artist` (`aid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `PlayHistory` (
+	`uid` int(11) NOT NULL,
+	`time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`tid` int(11) NOT NULL,
+	`alid` int(11) NOT NULL,
+	PRIMARY KEY (`uid`,`time`),
+	KEY `tid` (`tid`),
+	KEY `alid` (`alid`),
+	CONSTRAINT `PlayHistory_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `PlayHistory_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`),
+	CONSTRAINT `PlayHistory_ibfk_3` FOREIGN KEY (`alid`) REFERENCES `AlbumPlaylist` (`alid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `Rating` (
+	`uid` int(11) NOT NULL,
+	`tid` int(11) NOT NULL,
+	`time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`rate` int(1) NOT NULL,
+	PRIMARY KEY (`uid`,`tid`),
+	KEY `tid` (`tid`),
+	CONSTRAINT `Rating_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `User` (`uid`),
+	CONSTRAINT `Rating_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	
+	CREATE TABLE `TrackAlbum` (
+	`tid` int(11) NOT NULL,
+	`alid` int(11) NOT NULL,
+	`order` int(11) NOT NULL,
+	PRIMARY KEY (`tid`,`alid`),
+	KEY `alid` (`alid`),
+	CONSTRAINT `TrackAlbum_ibfk_1` FOREIGN KEY (`alid`) REFERENCES `AlbumPlaylist` (`alid`),
+	CONSTRAINT `TrackAlbum_ibfk_2` FOREIGN KEY (`tid`) REFERENCES `Track` (`tid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	\end{spverbatim}
+	\subsection{Explanation}
+	\subsubsection{The reason why we choose VARCHAR rather than TEXT.}
+	TEXT is stored off the table, and the table has a pointer to the location of the actual storage. So when the data is not in cache, generally, it will consume 1 more disk read before getting the real data. And VARCHAR is stored inside the table, which could be faster. But the downside of VARCHAR is obvious, it will make the blocks contain less rows, and may increase the disk read time if we are doing a scan read. And one more advantage for VARCHAR is that there can be INDEX on VARCHAR, and can not be INDEX other than FULLTEXT on TEXT, so it could be good for our queries.\\
+	Currently, we believe that we don't have huge description of artist, so we choose to use VARCHAR for now. And if in future, we have heavy load on the text, we can change them into TEXT.
+	
+	\subsubsection{The reason why we choose DATETIME rather than TIMESTAMP.}
+	DATETIME and TIMESTAMP has the same precision. However the range of TIMESTAMP is quite limited from 1970 to 2038. As we know that we may have some old songs or albums before 1970, so using TIMESTAMP prevents those data, which makes DATETIME the only option.
+	
+	\subsubsection{The reason why we set all DATETIME fields default to CURRENT\_TIMESTAMP}
+	We could choose not to add time whenever there is a INSERT in `Likes` table or `Follow` table but then it would be difficult for us to analyze users' behaviour. However, if we do so, setting default to current time would be a huge time saver for both developers and users. Secondly, we could prevent the issue where queries failed to insert a correct(in term of format or valid)time. 
+	
+	\subsubsection{The reason why we use FULLTEXT index.}
+	We use FULLTEXT index because it gives us MATCH function by which a set of keywords can match multiple columns of text. And it's useful when we write queries as query 6 in the testing chapter.\\
+	Before we add FULLTEXT index, we also changed the setting in my.cnf. The default value of \texttt{innodb\_ft\_min\_token\_size} is 3, which means the words with of length 2 will be treated as trivial words and cannot be keywords. So we changed this value to 1, because we know some tracks or artists may have arbitrary names.\\
+	\chapter{Database Testing}
+	
+	\section{Normalization Validation}
+	In this part, we checked multiple normalization requirements. The reason why we do so is to achieve the following goals:
+	\begin{enumerate}
+		\item 
+		Avoid redundant data.
+		\item 
+		Ensure that relationships among attributes are represented.
+		\item 
+		Facilatate the checking of updates for violation of database integrity constraints.
+	\end{enumerate}
+	\subsection{First Normal Form Validation}
+	In our current situation, every domain in our relational schemas is considered to be indivisible unit, hence every domain is atomic. So the requirements of first normal form is met.
+	\subsection{Boyce-Codd Normal Form Validation}
+	To check whether the schemas are in BCNF we have to figure out every functional dependency first.
+	\subsubsection{Functional Dependencies}
+	Following are the all non-trivial functional dependencies.\\
+	$(uid\to uname, nickname, email, city, password)$\\
+	$(uname\to uid, nickname, email, city, password)$\\
+	$(email\to uid, uname ,nickname, city, password)$\\
+	$(aid\to aname, description)$\\
+	$(tid\to title, duration, genre, by\_aid)$\\
+	$(alid\to title, time, count, type, by\_uid)$\\
+	$(uid, time\to tid, alid)$\\
+	$(uid, f\_uid\to time)$\\
+	$(uid, time\to f\_uid)$\\
+	$(uid, time\to tid, rate)$\\
+	$(uid, tid\to time, rate)$\\
+	$(uid, time\to aid)$\\
+	$(uid, aid\to time)$\\
+	$(tid, alid\to order)$\\
+	$(alid, order\to tid)$\\
+	As we can see, every functional dependency above, with the form of $\alpha \to \beta$, has the property of that $\alpha$ is a superkey for the corresponding relation schema $R$. So we can say that our relational schemas are in Boyce-Codd Normal Form.
+	
+	\subsection{Third Normal Form Validation}
+	Since every relation schema is in BCNF, it's in Third Normal Form, too.
+	\subsection{Fourth Normal Form Validation}
+	Since there is not multivalued dependency in any relational schema, so every relational schema is in Fourth Normal Form.
+	
+	\section{Sample data}
+	\subsubsection{Artist}
+	\begin{spverbatim}
+		+-----+---------------------+----------------------------------+
+		| aid | aname               | description                      |
+		+-----+---------------------+----------------------------------+
+		|   1 | Bob Jones           | just a singer                    |
+		|   2 | Punk Band           | your average Punk band           |
+		|   3 | David Earle         | just another singer with a beard |
+		|   4 | Bob Jones and Jones | joined by Jones                  |
+		|   5 | Fan Bu              | An artist in the future          |
+		+-----+---------------------+----------------------------------+
+	\end{spverbatim}
+
+	\subsubsection{AlbumPlaylist}
+	\begin{spverbatim}
+		+------+--------------+---------------------+----------+-------+--------+
+		| alid | title        | time                | type     | count | by_uid |
+		+------+--------------+---------------------+----------+-------+--------+
+		|    1 | Songs of Rod | 2015-11-05 12:20:00 | playlist |     2 |      2 |
+		|    2 | Punk Band    | 2016-01-01 12:00:00 | album    |  2000 | NULL   |
+		|    3 | Love Early   | 2011-11-11 11:11:00 | album    | 10000 | NULL   |
+		+------+--------------+---------------------+----------+-------+--------+
+	\end{spverbatim}
+
+	\subsubsection{Follow}
+	\begin{spverbatim}
+		+-----+-------+---------------------+
+		| uid | f_uid | time                |
+		+-----+-------+---------------------+
+		|   1 |     2 | 2017-11-05 12:20:00 |
+		|   1 |     3 | 2016-10-01 17:40:00 |
+		|   1 |     8 | 2016-10-05 12:20:00 |
+		|   2 |     3 | 2016-05-11 18:10:00 |
+		|   2 |     4 | 2016-02-01 14:00:00 |
+		|   2 |     5 | 2017-01-23 12:20:00 |
+		|   3 |     6 | 2017-01-29 09:20:00 |
+		|   3 |     7 | 2017-09-10 14:20:00 |
+		|   4 |     5 | 2017-09-12 20:20:00 |
+		|   6 |     7 | 2017-09-15 21:50:00 |
+		|   7 |     8 | 2017-02-05 12:20:00 |
+		|   8 |     1 | 2017-11-05 02:20:00 |
+		+-----+-------+---------------------+
+	\end{spverbatim}
+
+	\subsubsection{Likes}
+	\begin{spverbatim}
+		+-----+-----+---------------------+
+		| uid | aid | time                |
+		+-----+-----+---------------------+
+		|   2 |   1 | 2015-11-05 12:20:00 |
+		|   2 |   2 | 2016-01-01 12:00:00 |
+		|   3 |   2 | 2013-11-11 11:11:00 |
+		|   3 |   3 | 2011-11-11 11:11:00 |
+		|   7 |   4 | 2015-04-05 12:20:00 |
+		+-----+-----+---------------------+
+	\end{spverbatim}
+
+	\subsubsection{PlayHistory}
+	\begin{spverbatim}
+		+-----+---------------------+-----+------+
+		| uid | time                | tid | alid |
+		+-----+---------------------+-----+------+
+		|   3 | 2015-11-05 12:20:00 |   4 |    2 |
+		|   3 | 2016-01-01 12:00:00 |   5 |    2 |
+		|   6 | 2011-11-11 11:11:00 |   3 |    1 |
+		|   8 | 2015-04-05 12:20:00 |   1 |    3 |
+		+-----+---------------------+-----+------+
+	\end{spverbatim}
+
+	\subsubsection{Rating}
+	\begin{spverbatim}
+		+-----+-----+---------------------+------+
+		| uid | tid | time                | rate |
+		+-----+-----+---------------------+------+
+		|   1 |   1 | 2015-11-05 12:20:00 |    4 |
+		|   1 |   2 | 2016-01-01 12:00:00 |    5 |
+		|   1 |   5 | 2011-11-11 11:11:00 |    1 |
+		|   2 |   3 | 2015-11-05 12:20:00 |    3 |
+		|   3 |   3 | 2016-01-01 12:00:00 |    4 |
+		|   4 |   4 | 2011-11-11 11:11:00 |    4 |
+		+-----+-----+---------------------+------+
+	\end{spverbatim}
+
+	\subsubsection{Track}
+	\begin{spverbatim}
+		+-----+----------+-------------------------+-----------+--------+
+		| tid | duration | title                   | genre     | by_aid |
+		+-----+----------+-------------------------+-----------+--------+
+		|   1 |   180000 | My Romance              | Jazz      |      1 |
+		|   2 |   200000 | Our Song                | Blues     |      1 |
+		|   3 |   201000 | Stolen Moments          | Classical |      2 |
+		|   4 |   190000 | Virgo                   | Blues     |      3 |
+		|   5 |   170000 | If You Could See Me Now | Jazz      |      4 |
+		+-----+----------+-------------------------+-----------+--------+
+	\end{spverbatim}
+
+	\subsubsection{TrackAlbum}
+	\begin{spverbatim}
+		+-----+------+-------+
+		| tid | alid | order |
+		+-----+------+-------+
+		|   1 |    1 |     1 |
+		|   2 |    1 |     2 |
+		|   3 |    1 |     3 |
+		|   4 |    2 |     1 |
+		+-----+------+-------+
+	\end{spverbatim}
+
+	\subsubsection{User}
+	\begin{verbatim}
+		+-----+---------------+-------------+-----------------+----------+---------------+
+		| uid | uname         | nickname    | email           | password | city          |
+		+-----+---------------+-------------+-----------------+----------+---------------+
+		|   1 | NancyInQueens | Nacy        | nacy@gmail.com  | pass     | New York City |
+		|   2 | jh123         | Jerry Huang | Huang@gmail.com | pass     | Chicago       |
+		|   3 | snowman       | Brown Snow  | Snow@gmail.com  | pass     | Miami         |
+		|   4 | guguS         | Guru Singh  | Singh@gmail.com | pass     | Miami         |
+		|   5 | yuyuyu        | Ivy Yu      | Yu@gmail.com    | pass     | Chicago       |
+		|   6 | jackblack     | Jack Smith  | Smith@gmail.com | pass     | New York City |
+		|   7 | jjjing        | Jane Jing   | Jing@gmail.com  | pass     | New York City |
+		|   8 | whiteT        | Tom White   | White@gmail.com | pass     | New York City |
+		|   9 | ardd          | Antonio Rod | rod@gmail.com   | pass     | New York City |
+		+-----+---------------+-------------+-----------------+----------+---------------+
+	\end{verbatim}
+	
+	\section{Sample Queries and Results}
+	\subsection{Query 1}
+	Create a record for a new user account, with a name, a login name, and a password.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		INSERT INTO User(nickname, uname, password) VALUES ('Jeremy Bo', 'jbj', 'pass');
+	\end{spverbatim}
+	\subsubsection{Result}
+	\begin{verbatim}
+		Query OK, 1 row affected (0.00 sec)
+		
+		+-----+---------------+-------------+-----------------+----------+---------------+
+		| uid | uname         | nickname    | email           | password | city          |
+		+-----+---------------+-------------+-----------------+----------+---------------+
+		|   1 | NancyInQueens | Nacy        | nacy@gmail.com  | pass     | New York City |
+		|   2 | jh123         | Jerry Huang | Huang@gmail.com | pass     | Chicago       |
+		|   3 | snowman       | Brown Snow  | Snow@gmail.com  | pass     | Miami         |
+		|   4 | guguS         | Guru Singh  | Singh@gmail.com | pass     | Miami         |
+		|   5 | yuyuyu        | Ivy Yu      | Yu@gmail.com    | pass     | Chicago       |
+		|   6 | jackblack     | Jack Smith  | Smith@gmail.com | pass     | New York City |
+		|   7 | jjjing        | Jane Jing   | Jing@gmail.com  | pass     | New York City |
+		|   8 | whiteT        | Tom White   | White@gmail.com | pass     | New York City |
+		|   9 | ardd          | Antonio Rod | rod@gmail.com   | pass     | New York City |
+		|  10 | jbj           | Jeremy Bo   | NULL            | pass     | NULL          |
+		+-----+---------------+-------------+-----------------+----------+---------------+
+	\end{verbatim}
+	
+	\subsection{Query 2}
+	For each artist, list their ID, name, and how many times their tracks have been played by users.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT aid, aname, COALESCE(playcounttable.playcount, 0) AS count 
+		FROM Artist LEFT JOIN
+		(SELECT COUNT(Track.tid) AS playcount, by_aid 
+		FROM Track, PlayHistory
+		WHERE Track.tid = PlayHistory.tid
+		GROUP BY by_aid) AS playcounttable
+		ON Artist.aid = playcounttable.by_aid;
+	\end{spverbatim}
+	\subsubsection{Result}
+	\begin{spverbatim}
+		+-----+---------------------+-------+
+		| aid | aname               | count |
+		+-----+---------------------+-------+
+		|   1 | Bob Jones           |     1 |
+		|   2 | Punk Band           |     1 |
+		|   3 | David Earle         |     1 |
+		|   4 | Bob Jones and Jones |     1 |
+		|   5 | Fan Bu              |     0 |
+		+-----+---------------------+-------+
+	\end{spverbatim}
+	
+	\subsection{Query 3}
+	List all artists that are mainly playing Jazz, meaning that at least half of their tracks are of genre Jazz.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT Artist.aid, aname, description FROM
+		(SELECT COUNT(tid) AS jazzcount, by_aid
+		FROM Track
+		WHERE genre = 'Jazz'
+		GROUP BY by_aid) AS jazzcounttable,
+		(SELECT COUNT(tid) AS totalcount, by_aid
+		FROM Track
+		GROUP BY by_aid) AS totalcounttable, Artist
+		WHERE jazzcounttable.by_aid = totalcounttable.by_aid
+		AND jazzcounttable.by_aid = Artist.aid
+		AND 2 * jazzcount >= totalcount;
+	\end{spverbatim}
+	\subsubsection{Result}
+	\begin{spverbatim}
+		+-----+---------------------+-----------------+
+		| aid | aname               | description     |
+		+-----+---------------------+-----------------+
+		|   1 | Bob Jones           | just a singer   |
+		|   4 | Bob Jones and Jones | joined by Jones |
+		+-----+---------------------+-----------------+
+	\end{spverbatim}
+	
+	\subsection{Query 4}
+	Insert a new rating given by a user for a track.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		INSERT INTO Rating(uid, tid, time, rate) VALUES (4, 1, '2017-11-30 12:50:00', 5);
+	\end{spverbatim}
+	\subsubsection{Result}
+	\begin{spverbatim}
+		Query OK, 1 row affected (0.00 sec)
+		
+		+-----+-----+---------------------+------+
+		| uid | tid | time                | rate |
+		+-----+-----+---------------------+------+
+		|   1 |   1 | 2015-11-05 12:20:00 |    4 |
+		|   1 |   2 | 2016-01-01 12:00:00 |    5 |
+		|   1 |   5 | 2011-11-11 11:11:00 |    1 |
+		|   2 |   3 | 2015-11-05 12:20:00 |    3 |
+		|   3 |   3 | 2016-01-01 12:00:00 |    4 |
+		|   4 |   1 | 2017-11-30 12:50:00 |    5 |
+		|   4 |   4 | 2011-11-11 11:11:00 |    4 |
+		+-----+-----+---------------------+------+
+	\end{spverbatim}
+	
+	\subsection{Query 5}
+	For a particular user, say “NancyInQueens”, list all playlists that were made by users that she follows.
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT alid, title, time, type, count, by_uid FROM AlbumPlaylist,
+		(SELECT f_uid FROM Follow, User
+		WHERE Follow.uid = User.uid
+		AND uname = 'NancyInQueens') AS uidtable
+		WHERE AlbumPlaylist.type = 'playlist'
+		AND AlbumPlaylist.by_uid = uidtable.f_uid;
+	\end{spverbatim}
+	\subsubsection{Result}
+	\begin{spverbatim}
+		+------+--------------+---------------------+----------+-------+--------+
+		| alid | title        | time                | type     | count | by_uid |
+		+------+--------------+---------------------+----------+-------+--------+
+		|    1 | Songs of Rod | 2015-11-05 12:20:00 | playlist |     2 |      2 |
+		+------+--------------+---------------------+----------+-------+--------+
+	\end{spverbatim}
+	
+	\subsection{Query 6}
+	List all songs where the track title or artist title matches some set of keywords (if possible, use
+	``contains'', or otherwise ``like'', for this query).
+	
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT tid, title, duration, genre, by_aid FROM Artist, Track 
+		WHERE Artist.aid = Track.by_aid
+		AND (MATCH(title)
+		AGAINST ('S*' IN BOOLEAN MODE)
+		OR MATCH(aname, description)
+		AGAINST ('S*' IN BOOLEAN MODE))
+		ORDER BY MATCH(title)
+		AGAINST ('S*' IN BOOLEAN MODE) DESC,
+		MATCH(aname, description)
+		AGAINST ('S*' IN BOOLEAN MODE) DESC;
+	\end{spverbatim}
+	\subsubsection{Result}
+	\begin{spverbatim}
+		+-----+-------------------------+----------+-----------+--------+
+		| tid | title                   | duration | genre     | by_aid |
+		+-----+-------------------------+----------+-----------+--------+
+		|   2 | Our Song                |   200000 | Blues     |      1 |
+		|   3 | Stolen Moments          |   201000 | Classical |      2 |
+		|   5 | If You Could See Me Now |   170000 | Jazz      |      4 |
+		|   4 | Virgo                   |   190000 | Blues     |      3 |
+		|   1 | My Romance              |   180000 | Jazz      |      1 |
+		+-----+-------------------------+----------+-----------+--------+
+	\end{spverbatim}
+	
+	\subsection{Query 7}
+	Find pairs of related artists, where two artists are related if they have many fans in common. (Define
+	this appropriately.)\\
+	We define that artist $A$ and artist $B$ are similar if and only if the number of common fans between $A$ and $B$, $c_{common}$, and the number of fans of $A$, $c_A$ has the following relation:
+	$$ \frac{c_{common}}{c_A} \geq 10\%.$$
+	So the similarity between $A$ and $B$ is defined as $c_{common} / c_A$. Hence we know that the similarity between $A$ an $B$ is not necessarily equal to the similarity between $B$ and $A$.\\
+	The reasoning behind the 10\% is that we could not define the ratio too high. Otherwise it's possible that we would never find such "related" artist pairs hence lost the meaning of the query. However, 10\% is only an approximate number under the assumption that there are only limited demographics groups of the fans (by age, 10-15, 16-20, etc. for about 10 groups or by occupation, for about 10 categories, too).
+	
+	\subsubsection{SQL Script}
+	\begin{spverbatim}
+		SELECT counttotaltable.aid AS aid1, commontable.aid2,
+		commontable.countcommon / counttotaltable.countuid AS similarity
+		FROM (SELECT aid, COUNT(uid) AS countuid FROM Likes GROUP BY aid) AS counttotaltable,
+		(SELECT likes1.aid AS aid1, likes2.aid AS aid2, COUNT(likes1.uid) AS countcommon
+		FROM Likes likes1, Likes likes2
+		WHERE NOT likes1.aid = likes2.aid
+		AND likes1.uid = likes2.uid
+		GROUP BY likes1.aid, likes2.aid) AS commontable
+		WHERE counttotaltable.aid = commontable.aid1
+		AND counttotaltable.countuid <= commontable.countcommon * 10;
+	\end{spverbatim}
+
+	\subsubsection{Result}
+	\begin{spverbatim}
+		+------+------+------------+
+		| aid1 | aid2 | similarity |
+		+------+------+------------+
+		|    1 |    2 | 1.0000     |
+		|    2 |    1 | 0.5000     |
+		|    2 |    3 | 0.5000     |
+		|    3 |    2 | 1.0000     |
+		+------+------+------------+
+	\end{spverbatim}
+	
+	\chapter{Frontend Design}
+	
+\end{document}
