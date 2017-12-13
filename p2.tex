@@ -585,6 +585,40 @@
 		+------+------+------------+
 	\end{spverbatim}
 	
-	\chapter{Frontend Design}
+	\chapter{Website Design}
+	\section{Tech Stack Choosing}
+	After deliberated thinking, we realized that our goal is to provide a very stable, light weighted, easy to extend system. So we choose to use Flask as our back-end framework, and use jQuery and Semantic UI as our front-end framework and UI library. 
+	\subsection{Flask}
+	We used python Flask because it is very explicit and we can choose how we interact with database in our own way with the help of Flask’s extension and library (such as flask-mysql, flask-session, SQL Injection). The entire application is a single file (app.py) with router and back end logic separated, which could help us better handle JSON data and have a more flexible UI flow directed. The best part is, all the configuration is handled in one file and the framework updates automatically whenever we git pull latest code from teammates without the hassle to restart or re-configure the framework.
+	In addition, Python is good for automating mechanical tasks like data entry to automatically sorting and organizing. With that tasks got handled we have more time to focus on logic layer and streamline our everyday tasks.
+	It also provides a more developer friendly debug mode with a safety pin. If we deploy the website for public access to test components such as users registration. It’s locked to certain degree that can only be unlocked using the safety pin. 
+	
+	\subsection{Semantic UI and jQuery}
+	As we know, for plain inline HTML, we use components (like Labels, and Buttons) as invidual elements and import them as dependencies of each other. For instance, the Dropdown imports the Icon, the Form imports the Button and Input, the Input imports the Label. However, for a API based framework like Semantic UI, components and structures are clearer, more consistent, and far more powerful. The class name not only acts like selectors but also acts like its class names.\\
+	In addition, we think Semantic UI focuses on features not markup intricacies. 
+	When designing front end components, we have to constanly remind ourseleves of “what shape should this icon have again? Square or circle? Blue or red? “ This can lead to an inconsistant theme throughout the site. In stead, Semantic UI enable us to think like "what properties should this icon have". For example, the thumbs up icon above is only the format of “icon='settings' “and then we can move on to focus on features instead of worrying if the icon would be inside the div or not. 
+	
+	
+	
+	\section{Overall Design Logic}
+	The overall theme of our project is violet purple since it represents a more calm mood which we believe it’s perfect to listen to music. We also utilize album images a lot since it attracts users’ attentions more effectively than text or even music itself. Multiple images layout also match our modular design. 
+	
+	
+	\section{Details}
+	\subsection{UI Flow}
+	Once a user logs in, our site will take him/her to the dashboard of our UI design. The major searching function can break the text search down to tracks title, artist title or even album title. The additional options ensure that users would not miss the information he/she really wants to see. Morever, he/she can also have a good glance at the related alternative information when searching for his/her target interest. Besides his/her basic information, this page also displays how many other users he/she follows, the playlists he/she created and the tracks of his/her favourite artists. Every single related information is within their reach. If users click any track or album in those tables. The site can take them to the corresspoind Album or Playlist pages.\\
+	For the Artist page, an user can “Like” her/him by pressing button and it sends an Ajax request to insert/update “Likes” table. Below the basic information about the artist, it lists all the albums the artist releases as a table and for each album, it has all the info. Once users click an album. it takes users to Album page. \\
+	On the Album page (it’s a template page identified by album id), in addition to the album name and release date, the table provides tracks this album has and users have options to play the track or rate the track (from 1 to 5 stars). Playing tracks utilize Spotify’s play widget to play track using the unique track ID. While rating button sends an Ajax request to insert/update “Rating” MySQL table. When users click a track’s title, it goes to the Album page that track belongs to. And he can also choose many songs here to add them into his or her playlists. I mean, playlists. He/she can add the songs into multiple different or even new playlists at the same time!
+	
+	\subsection{Password Handling}
+	For encryption of users’ passwords, we SHA-1 it once on the front end and Ajax that encrypted password to back end. On the server side, we SHA-1 it with user name as salt. Then store that final encrypted password in database. In this way, even if our database got exposed, users’ passwords won’t be comprised. On the other hand, when doing passwords matching, we repeat the same process to match encrypted passwords with database instead of the plain password. 
+	
+	\subsection{Rating Logic}
+	We give users the freedom to rate tracks as many times as they want. To achieve this, the SQL query only updates rating when there’s already record in the Rating table and insert a new one when the track has not been rated. 
+	
+	\subsection{Login Logic}
+	We insist that users must be logged in to use our service since the user id not only guarantees more tailored information such as tracks from the artists they like or the playlists created by other users they follow. Our mobile responsive web application also enhances this feature for more people to stay connected. Share, like and rate the music they are fond of. 
+	
+	
 	
 \end{document}
